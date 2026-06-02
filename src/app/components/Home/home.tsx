@@ -1,9 +1,16 @@
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useNavigation } from "expo-router";
+import { useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { getUserByUsername } from "../../../../database/db.js";
 
 export default function Home() {
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: "Login" });
+  }, [navigation]);
+
   const { control, handleSubmit } = useForm({
     defaultValues: {
       username: "",
@@ -12,10 +19,29 @@ export default function Home() {
   });
 
   const [message, setMessage] = useState("");
-  const [succes, setSucces] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const onLogin = (data: any) => {
-    console.log("Login data:", data);
+    // Zoek en neemt gebruiker op basis van username in de db
+    const user = getUserByUsername(data.username);
+
+    // als de ingevoerde wachtwoord niet matcht met de ww van de db --> bericht dat het niet correct is
+    if (!user || user.password !== data.password) {
+      setSuccess(false);
+      setMessage("Username password incorrect!");
+      return;
+    }
+
+    // als hij gevonden heeft "success op true" en een bericht dat het succesvoll was
+    setSuccess(true);
+    setMessage("Login successfull!");
+
+    setTimeout(() => {
+      router.replace({
+        pathname: "/components/Workorders/workorder",
+        params: { userId: user.id },
+      });
+    }, 3000);
   };
 
   return (
@@ -56,6 +82,13 @@ export default function Home() {
           </View>
         )}
       />
+
+      {message && (
+        <Text style={{ color: success ? "green" : "red", marginBottom: 12 }}>
+          {message}
+        </Text>
+      )}
+
       <Button title="Login" onPress={handleSubmit(onLogin)} />
       <Text></Text>
       <Button

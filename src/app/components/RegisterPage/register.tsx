@@ -1,4 +1,5 @@
-import { Stack } from "expo-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { router, Stack } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -9,9 +10,30 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
+import { createUser } from "../../../../database/db.js";
+
+const registerSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required"),
+  lastName: z.string().trim().min(1, "Last name is required"),
+  dob: z.string().trim().min(1, "Date of birth is required"),
+  municipality: z.string().trim().min(1, "Municipality is required"),
+  postalcode: z.string().trim().min(1, "Postalcode is required"),
+  street: z.string().trim().min(1, "Street is required"),
+  housenr: z.string().trim().min(1, "Housenr is required"),
+  box: z.string().trim().min(1, "Box is required"),
+  username: z.string().trim().min(5, "Username must be at least 5 characters"),
+  password: z.string().trim().min(8, "Password must be at least 8 characters"),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -24,16 +46,37 @@ export default function Register() {
       username: "",
       password: "",
     },
+    resolver: zodResolver(registerSchema),
   });
 
   const [agree, setAgree] = useState(false);
+  const [message, setMessage] = useState("");
 
   const onSubmit = (data: any) => {
     if (!agree) {
-      console.log("Please agree to the terms");
+      setMessage("Please agree to the terms");
       return;
     }
-    console.log("Register data:", { ...data, agree });
+    try {
+      setMessage("");
+      createUser(
+        data.firstName,
+        data.lastName,
+        data.username,
+        data.password,
+        data.dob,
+        data.municipality,
+        data.postalcode,
+        data.street,
+        data.housenr,
+        data.box,
+      );
+
+      console.log("Register data:", { ...data, agree });
+      router.replace("/components/Home/home");
+    } catch (e) {
+      setMessage("Username already exists.");
+    }
   };
 
   return (
@@ -56,6 +99,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.firstName && (
+        <Text style={styles.error}>{errors.firstName.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -73,6 +119,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.lastName && (
+        <Text style={styles.error}>{errors.lastName.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -90,6 +139,7 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.dob && <Text style={styles.error}>{errors.dob.message}</Text>}
 
       <Controller
         control={control}
@@ -107,6 +157,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.municipality && (
+        <Text style={styles.error}>{errors.municipality.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -124,6 +177,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.postalcode && (
+        <Text style={styles.error}>{errors.postalcode.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -141,6 +197,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.street && (
+        <Text style={styles.error}>{errors.street.message}</Text>
+      )}
 
       <View style={[styles.row, { marginBottom: 16 }]}>
         <View style={{ flex: 1, marginRight: 8 }}>
@@ -160,6 +219,9 @@ export default function Register() {
               </View>
             )}
           />
+          {errors.housenr && (
+            <Text style={styles.error}>{errors.housenr.message}</Text>
+          )}
         </View>
         <View style={{ width: 100 }}>
           <Controller
@@ -178,6 +240,7 @@ export default function Register() {
               </View>
             )}
           />
+          {errors.box && <Text style={styles.error}>{errors.box.message}</Text>}
         </View>
       </View>
 
@@ -198,6 +261,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.username && (
+        <Text style={styles.error}>{errors.username.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -216,6 +282,9 @@ export default function Register() {
           </View>
         )}
       />
+      {errors.password && (
+        <Text style={styles.error}>{errors.password.message}</Text>
+      )}
 
       <View style={styles.checkboxRow}>
         <TouchableOpacity
@@ -230,6 +299,8 @@ export default function Register() {
       <TouchableOpacity style={styles.submit} onPress={handleSubmit(onSubmit)}>
         <Text style={styles.submitText}>Create account</Text>
       </TouchableOpacity>
+
+      <Text style={{ color: "red", marginTop: 10 }}>{message}</Text>
     </ScrollView>
   );
 }
@@ -239,7 +310,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   field: {
-    marginBottom: 12,
+    marginBottom: 6,
   },
   label: {
     fontSize: 14,
@@ -251,6 +322,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 8,
+  },
+  error: {
+    color: "#d00",
+    marginTop: 2,
+    marginBottom: 6,
+    fontSize: 12,
   },
   row: {
     flexDirection: "row",
