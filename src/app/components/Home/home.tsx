@@ -2,7 +2,7 @@ import { router, useNavigation } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { getUserByUsername } from "../../../../database/db.js";
+import { getUserByUsername } from "../../../../database/db";
 
 export default function Home() {
   const navigation = useNavigation();

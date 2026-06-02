@@ -8,7 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { addWorkorder, getWorkorders } from "../../../../database/db.js";
+import { addWorkorder, getWorkorders } from "../../../../database/db";
 
 export default function AddWorkorder() {
   const navigation = useNavigation();

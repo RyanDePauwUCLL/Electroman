@@ -2,7 +2,7 @@ import Checkbox from "expo-checkbox";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { getUserById, getWorkorders } from "../../../../database/db.js";
+import { getUserById, getWorkorders } from "../../../../database/db";
 
 type Workorder = {
   id: number;

@@ -1,6 +1,31 @@
 import * as SQLite from "expo-sqlite";
 
-let db;
+interface User {
+  id: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  username: string;
+  password: string;
+  birthdate?: string | null;
+  municipality?: string | null;
+  postalcode?: string | null;
+  street?: string | null;
+  houseNumber?: string | null;
+  box?: string | null;
+}
+
+interface Workorder {
+  id: number;
+  city?: string | null;
+  device?: string | null;
+  problemCode?: string | null;
+  customerName?: string | null;
+  processed?: number | null;
+  detailedProblemDescription?: string | null;
+  repairInformation?: string | null;
+}
+
+let db: SQLite.SQLiteDatabase | undefined;
 
 function getDB() {
   if (!db) {
@@ -54,9 +79,6 @@ export function initDB() {
       ('Gent',      'Printer', 'P005', 'Sara Declercq', 'Papierstoring');
   `);
 
-  // Cleanup any corrupted rows where a serialized object was inserted into a column
-  // (e.g. strings like "{city=Leuven, device=...}"). Remove rows where city/device/customerName
-  // start with '{' or contain the pattern 'city=' which indicates a stringified object.
   getDB().runSync(
     `DELETE FROM workorders WHERE
        city LIKE ? OR city LIKE ? OR
@@ -66,27 +88,29 @@ export function initDB() {
   );
 }
 
-export function getUserByUsername(username) {
+export function getUserByUsername(username: string) {
   return getDB().getFirstSync("SELECT * FROM users WHERE username = ?", [
     username,
-  ]);
+  ]) as User | undefined;
 }
 
-export function getUserById(id) {
-  return getDB().getFirstSync("SELECT * FROM users WHERE id = ?", [id]);
+export function getUserById(id: number) {
+  return getDB().getFirstSync("SELECT * FROM users WHERE id = ?", [id]) as
+    | User
+    | undefined;
 }
 
 export function createUser(
-  firstName,
-  lastName,
-  username,
-  password,
-  birthdate,
-  municipality,
-  postalcode,
-  street,
-  houseNumber,
-  box,
+  firstName: string,
+  lastName: string,
+  username: string,
+  password: string,
+  birthdate?: string,
+  municipality?: string,
+  postalcode?: string,
+  street?: string,
+  houseNumber?: string,
+  box?: string,
 ) {
   getDB().runSync(
     `INSERT INTO users (firstName, lastName, username, password, birthdate, municipality, postalcode, street, houseNumber, box)
@@ -107,8 +131,8 @@ export function createUser(
 }
 
 export function getWorkorders() {
-  const rows = getDB().getAllSync("SELECT * FROM workorders");
-  return rows.map((row) => ({
+  const rows = getDB().getAllSync("SELECT * FROM workorders") as Workorder[];
+  return rows.map((row: Workorder) => ({
     id: Number(row.id),
     city: String(row.city ?? ""),
     device: String(row.device ?? ""),
@@ -117,16 +141,18 @@ export function getWorkorders() {
     processed: Number(row.processed ?? 0),
   }));
 }
-export function getWorkorderById(id) {
-  return getDB().getFirstSync("SELECT * FROM workorders WHERE id = ?", [id]);
+export function getWorkorderById(id: number) {
+  return getDB().getFirstSync("SELECT * FROM workorders WHERE id = ?", [id]) as
+    | Workorder
+    | undefined;
 }
 
 export function addWorkorder(
-  city,
-  device,
-  problemCode,
-  customerName,
-  detailedProblemDescription,
+  city: string,
+  device: string,
+  problemCode: string,
+  customerName: string,
+  detailedProblemDescription?: string,
 ) {
   const existing = getDB().getFirstSync(
     "SELECT id FROM workorders WHERE city = ? AND device = ? AND customerName = ?",
@@ -141,14 +167,14 @@ export function addWorkorder(
   );
 }
 
-export function saveRepairInfo(id, repairInformation) {
+export function saveRepairInfo(id: number, repairInformation: string) {
   getDB().runSync(
     "UPDATE workorders SET repairInformation = ?, processed = 1 WHERE id = ?",
     [repairInformation, id],
   );
 }
 
-export function reopenWorkorder(id) {
+export function reopenWorkorder(id: number) {
   getDB().runSync(
     "UPDATE workorders SET processed = 0, repairInformation = NULL WHERE id = ?",
     [id],

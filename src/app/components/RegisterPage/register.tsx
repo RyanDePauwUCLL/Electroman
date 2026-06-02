@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { z } from "zod";
-import { createUser } from "../../../../database/db.js";
+import { createUser } from "../../../../database/db";
 
 const registerSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required"),

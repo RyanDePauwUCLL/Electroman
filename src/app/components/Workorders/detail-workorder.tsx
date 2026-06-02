@@ -8,7 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { getWorkorderById, saveRepairInfo } from "../../../../database/db.js";
+import { getWorkorderById, saveRepairInfo } from "../../../../database/db";
 
 type Workorder = {
   id: number;
