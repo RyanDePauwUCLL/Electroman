@@ -42,6 +42,7 @@ export function initDB() {
   const db = getDB();
 
   db.execSync(`DROP TABLE IF EXISTS workorders;`);
+  db.execSync(`DROP TABLE IF EXISTS users;`);
 
   db.execSync(`
     CREATE TABLE IF NOT EXISTS users (
@@ -179,4 +180,64 @@ export function reopenWorkorder(id: number) {
     "UPDATE workorders SET processed = 0, repairInformation = NULL WHERE id = ?",
     [id],
   );
+}
+
+// Logs useful DB internals to help locate the database file.
+// Call with `logDatabaseInfo(true)` for a more verbose preview.
+export function logDatabaseInfo(verbose = false) {
+  const _db = getDB();
+  try {
+    const dbAny = _db as any;
+    const keys = Object.keys(dbAny || {}).slice(0, 200);
+    console.log("[logDatabaseInfo] DB object keys:", keys);
+
+    const pathCandidates = [
+      "databasePath",
+      "_dbPath",
+      "path",
+      "filename",
+      "name",
+      "_name",
+      "database",
+    ];
+
+    const found: Record<string, any> = {};
+    for (const k of pathCandidates) {
+      if (k in dbAny) found[k] = dbAny[k];
+    }
+    console.log("[logDatabaseInfo] Path-like properties:", found);
+
+    if (verbose) {
+      const preview: Record<string, any> = {};
+      for (const k of keys) {
+        try {
+          const v = dbAny[k];
+          if (v === null || v === undefined) preview[k] = v;
+          else if (
+            typeof v === "string" ||
+            typeof v === "number" ||
+            typeof v === "boolean"
+          )
+            preview[k] = v;
+          else preview[k] = typeof v;
+        } catch (e) {
+          preview[k] = "<unreadable>";
+        }
+      }
+      console.log("[logDatabaseInfo] DB preview (top keys):", preview);
+    }
+
+    // Best-effort single value to display
+    const single =
+      found.databasePath ??
+      found._dbPath ??
+      found.path ??
+      found.filename ??
+      found.name ??
+      null;
+    return single;
+  } catch (e) {
+    console.log("[logDatabaseInfo] Failed to read DB info", e);
+    return null;
+  }
 }

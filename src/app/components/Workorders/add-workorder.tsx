@@ -87,6 +87,7 @@ export default function AddWorkorder() {
           />
           <TextInput
             style={styles.input}
+            maxLength={4}
             placeholder="Problem code"
             value={problemCode}
             onChangeText={setProblemCode}
