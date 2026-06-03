@@ -1,7 +1,7 @@
 import { router, useNavigation } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { getUserByUsername } from "../../../../database/db";
 
 export default function Home() {
@@ -36,6 +36,7 @@ export default function Home() {
     setSuccess(true);
     setMessage("Login successfull!");
 
+    // als login juist is, timeout van 3 seconden en wordt je naar de volgende page gebracht.
     setTimeout(() => {
       router.replace({
         pathname: "/components/Workorders/workorder",
@@ -84,17 +85,36 @@ export default function Home() {
       />
 
       {message && (
-        <Text style={{ color: success ? "green" : "red", marginBottom: 12 }}>
+        <Text
+          style={{
+            textTransform: "uppercase",
+            color: success ? "green" : "red",
+            marginBottom: 12,
+          }}
+        >
           {message}
         </Text>
       )}
 
-      <Button title="Login" onPress={handleSubmit(onLogin)} />
-      <Text></Text>
-      <Button
-        title="Create account"
+      <Pressable
+        onPress={handleSubmit(onLogin)}
+        style={({ pressed }) => [
+          styles.button,
+          pressed && styles.buttonPressed,
+        ]}
+      >
+        <Text style={styles.buttonText}>Login</Text>
+      </Pressable>
+
+      <Pressable
         onPress={() => router.push("/components/RegisterPage/register")}
-      />
+        style={({ pressed }) => [
+          styles.button,
+          pressed && styles.buttonPressed,
+        ]}
+      >
+        <Text style={styles.buttonText}>Create account</Text>
+      </Pressable>
     </View>
   );
 }
@@ -119,7 +139,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    display: "flex",
-    margin: 50,
+    backgroundColor: "#243042",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  buttonPressed: {
+    opacity: 0.85,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -46,7 +46,7 @@ export default function AddWorkorder() {
     addWorkorder(
       city.trim(),
       device.trim(),
-      problemCode.trim(),
+      parseInt(problemCode || "0", 10),
       name.trim(),
       "",
     );
@@ -87,10 +87,11 @@ export default function AddWorkorder() {
           />
           <TextInput
             style={styles.input}
-            maxLength={4}
+            maxLength={2}
+            keyboardType="numeric"
             placeholder="Problem code"
             value={problemCode}
-            onChangeText={setProblemCode}
+            onChangeText={(text) => setProblemCode(text.replace(/[^0-9]/g, ""))}
           />
           <TextInput
             style={styles.input}

@@ -10,7 +10,7 @@ type Workorder = {
   device: string;
   problemCode: string;
   customerName: string;
-  processed: number;
+  processed: boolean;
   detailedProblemDescription?: string;
   repairInformation?: string;
 };
@@ -43,7 +43,7 @@ export default function Workorder() {
   const displayName = useMemo(() => {
     const firstName = user?.firstName ?? "";
     const lastName = user?.lastName ?? "";
-    return `${firstName} ${lastName}`.trim() || "Field worker";
+    return `${firstName} ${lastName}`.trim();
   }, [user]);
 
   return (
@@ -54,7 +54,7 @@ export default function Workorder() {
             style={styles.toolbarButton}
             onPress={() => router.push("/components/Workorders/add-workorder")}
           >
-            <Text style={styles.toolbarButtonText}>Add workorder</Text>
+            <Text style={styles.toolbarButtonText}>New</Text>
           </Pressable>
           <Pressable
             style={styles.toolbarButton}
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 32 },
   welcomeCard: {
     backgroundColor: "#fff",
-    borderRadius: 18,
+    borderRadius: 10,
     padding: 16,
     marginBottom: 16,
     elevation: 3,

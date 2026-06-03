@@ -16,7 +16,7 @@ import { createUser } from "../../../../database/db";
 const registerSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required"),
   lastName: z.string().trim().min(1, "Last name is required"),
-  dob: z.string().trim().min(1, "Date of birth is required"),
+  dob: z.string().min(1, "Date of birth is required"),
   municipality: z.string().trim().min(1, "Municipality is required"),
   postalcode: z.string().trim().min(1, "Postalcode is required"),
   street: z.string().trim().min(1, "Street is required"),
@@ -132,7 +132,25 @@ export default function Register() {
             <TextInput
               style={styles.input}
               onBlur={onBlur}
-              onChangeText={onChange}
+              keyboardType="number-pad"
+              maxLength={10}
+              onChangeText={(text) => {
+                // Keep only digits, then insert hyphens to format as YYYY-MM-D or YYYY-MM-DD
+                const digits = text.replace(/[^0-9]/g, "").slice(0, 8); // YYYYMMDD
+                let formatted = digits;
+                if (digits.length > 4) {
+                  formatted = digits.slice(0, 4) + "-" + digits.slice(4);
+                }
+                if (digits.length > 6) {
+                  formatted =
+                    digits.slice(0, 4) +
+                    "-" +
+                    digits.slice(4, 6) +
+                    "-" +
+                    digits.slice(6);
+                }
+                onChange(formatted);
+              }}
               value={value}
               placeholder="ex 2005-11-6"
             />

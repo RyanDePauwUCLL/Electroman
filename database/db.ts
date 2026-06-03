@@ -50,7 +50,7 @@ export function initDB() {
       firstName TEXT, lastName TEXT,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      birthdate TEXT, municipality TEXT,
+      birthdate DATE, municipality TEXT,
       postalcode TEXT, street TEXT,
       houseNumber TEXT, box TEXT
     );
@@ -60,7 +60,7 @@ export function initDB() {
     CREATE TABLE IF NOT EXISTS workorders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       city TEXT, device TEXT, problemCode TEXT,
-      customerName TEXT, processed INTEGER DEFAULT 0,
+      customerName TEXT, processed BOOLEAN,
       detailedProblemDescription TEXT, repairInformation TEXT
     );
   `);
@@ -73,11 +73,11 @@ export function initDB() {
   db.execSync(`
     INSERT INTO workorders (city, device, problemCode, customerName, detailedProblemDescription)
     VALUES
-      ('Gent',      'TV',      'P001', 'Marie Peeters', 'Scherm toont geen beeld'),
-      ('Brussel',   'Laptop',  'P002', 'Luc Claes',     'Start niet op'),
-      ('Antwerpen', 'GSM',     'P003', 'Emma Wouters',  'Scherm gebarsten'),
-      ('Leuven',    'Tablet',  'P004', 'Jonas Hermans', 'Laadt niet op'),
-      ('Gent',      'Printer', 'P005', 'Sara Declercq', 'Papierstoring');
+      ('Gent',      'TV',      '12', 'Marie Peeters', 'Scherm toont geen beeld'),
+      ('Brussel',   'Laptop',  '17', 'Luc Claes',     'Start niet op'),
+      ('Antwerpen', 'GSM',     '08', 'Emma Wouters',  'Scherm gebarsten'),
+      ('Leuven',    'Tablet',  '04', 'Jonas Hermans', 'Laadt niet op'),
+      ('Gent',      'Printer', '21', 'Sara Declercq', 'Papierstoring');
   `);
 
   getDB().runSync(
@@ -139,7 +139,7 @@ export function getWorkorders() {
     device: String(row.device ?? ""),
     problemCode: String(row.problemCode ?? ""),
     customerName: String(row.customerName ?? ""),
-    processed: Number(row.processed ?? 0),
+    processed: Boolean(row.processed ?? 0),
   }));
 }
 export function getWorkorderById(id: number) {
@@ -151,7 +151,7 @@ export function getWorkorderById(id: number) {
 export function addWorkorder(
   city: string,
   device: string,
-  problemCode: string,
+  problemCode: number,
   customerName: string,
   detailedProblemDescription?: string,
 ) {
@@ -180,64 +180,4 @@ export function reopenWorkorder(id: number) {
     "UPDATE workorders SET processed = 0, repairInformation = NULL WHERE id = ?",
     [id],
   );
-}
-
-// Logs useful DB internals to help locate the database file.
-// Call with `logDatabaseInfo(true)` for a more verbose preview.
-export function logDatabaseInfo(verbose = false) {
-  const _db = getDB();
-  try {
-    const dbAny = _db as any;
-    const keys = Object.keys(dbAny || {}).slice(0, 200);
-    console.log("[logDatabaseInfo] DB object keys:", keys);
-
-    const pathCandidates = [
-      "databasePath",
-      "_dbPath",
-      "path",
-      "filename",
-      "name",
-      "_name",
-      "database",
-    ];
-
-    const found: Record<string, any> = {};
-    for (const k of pathCandidates) {
-      if (k in dbAny) found[k] = dbAny[k];
-    }
-    console.log("[logDatabaseInfo] Path-like properties:", found);
-
-    if (verbose) {
-      const preview: Record<string, any> = {};
-      for (const k of keys) {
-        try {
-          const v = dbAny[k];
-          if (v === null || v === undefined) preview[k] = v;
-          else if (
-            typeof v === "string" ||
-            typeof v === "number" ||
-            typeof v === "boolean"
-          )
-            preview[k] = v;
-          else preview[k] = typeof v;
-        } catch (e) {
-          preview[k] = "<unreadable>";
-        }
-      }
-      console.log("[logDatabaseInfo] DB preview (top keys):", preview);
-    }
-
-    // Best-effort single value to display
-    const single =
-      found.databasePath ??
-      found._dbPath ??
-      found.path ??
-      found.filename ??
-      found.name ??
-      null;
-    return single;
-  } catch (e) {
-    console.log("[logDatabaseInfo] Failed to read DB info", e);
-    return null;
-  }
 }
