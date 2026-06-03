@@ -22,8 +22,8 @@ const registerSchema = z.object({
   street: z.string().trim().min(1, "Street is required"),
   housenr: z.string().trim().min(1, "Housenr is required"),
   box: z.string().trim().min(1, "Box is required"),
-  username: z.string().trim().min(5, "Username must be at least 5 characters"),
-  password: z.string().trim().min(8, "Password must be at least 8 characters"),
+  username: z.string().trim().min(1, "Username is required"),
+  password: z.string().trim().min(1, "Password is required"),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
