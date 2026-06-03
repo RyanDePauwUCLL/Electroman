@@ -58,7 +58,7 @@ export default function Workorder() {
           </Pressable>
           <Pressable
             style={styles.toolbarButton}
-            onPress={() => router.push("/components/Home/home")}
+            onPress={() => router.replace("/components/Home/home")}
           >
             <Text style={styles.toolbarButtonText}>Logout</Text>
           </Pressable>
@@ -76,7 +76,6 @@ export default function Workorder() {
         </Text>
 
         <View style={styles.table}>
-          {/* Header */}
           <View style={[styles.row, styles.headerRow]}>
             <Text style={[styles.cityCell, styles.headerText]}>City</Text>
             <Text style={[styles.deviceCell, styles.headerText]}>Device</Text>
@@ -87,7 +86,6 @@ export default function Workorder() {
             </Text>
           </View>
 
-          {/* Rows */}
           {workorders
             .filter(
               (item) => typeof item === "object" && item !== null && item.city,

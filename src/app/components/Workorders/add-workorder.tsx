@@ -63,10 +63,10 @@ export default function AddWorkorder() {
       <View style={styles.toolbar}>
         <View style={styles.toolbarActions}>
           <Pressable style={styles.toolbarButton} onPress={onSave}>
-            <Text style={styles.toolbarButtonText}>V Save</Text>
+            <Text style={styles.toolbarButtonText}>Save</Text>
           </Pressable>
           <Pressable style={styles.toolbarButton} onPress={onCancel}>
-            <Text style={styles.toolbarButtonText}>X Cancel</Text>
+            <Text style={styles.toolbarButtonText}>Cancel</Text>
           </Pressable>
         </View>
       </View>
