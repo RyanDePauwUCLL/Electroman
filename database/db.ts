@@ -59,9 +59,13 @@ export function initDB() {
   db.execSync(`
     CREATE TABLE IF NOT EXISTS workorders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      city TEXT, device TEXT, problemCode TEXT,
-      customerName TEXT, processed BOOLEAN,
-      detailedProblemDescription TEXT, repairInformation TEXT
+      city TEXT, 
+      device TEXT, 
+      problemCode TEXT,
+      customerName TEXT, 
+      processed BOOLEAN,
+      detailedProblemDescription TEXT, 
+      repairInformation TEXT
     );
   `);
 
